@@ -1,0 +1,1534 @@
+{
+  "info": {
+    "_postman_id": "7bfa882a-skillwave-mern-api-collection",
+    "name": "SkillWave MERN Platform API",
+    "description": "Comprehensive REST API test collection for SkillWave unified learning and skill development platform.\nCovers Authentication, Users, Videos, Comments, Challenges, Events, Categories, AI Features, Roadmaps, Uploads, and Analytics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "videoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "commentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "challengeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roadmapId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 System & Health",
+      "item": [
+        {
+          "name": "GET Health & DB Persistence Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Inspect database connection and persistence mode"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 Authentication",
+      "item": [
+        {
+          "name": "Login - Teacher",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "var token = jsonData.token || (jsonData.data && jsonData.data.token);",
+                  "pm.test(\"Has token\", function () { pm.expect(token).to.not.be.empty; });",
+                  "if (token) { pm.collectionVariables.set(\"authToken\", token); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@skillwave.edu\",\n  \"password\": \"Teacher@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login - Learner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "var role = (jsonData.user && jsonData.user.role) || (jsonData.data && jsonData.data.user && jsonData.data.user.role);",
+                  "pm.test(\"Role is learner\", function () { pm.expect(role).to.eql(\"learner\"); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"learner@skillwave.edu\",\n  \"password\": \"Learner@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login - Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@skillwave.edu\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Student Tester\",\n  \"email\": \"tester@skillwave.edu\",\n  \"password\": \"password123\",\n  \"role\": \"learner\",\n  \"phone\": \"+1-555-0199\",\n  \"address\": \"San Francisco, CA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Users & Preferences",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Preferences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selectedCategories\": [\"Web Development\", \"Artificial Intelligence\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "preferences"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH Partial Update Preferences",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "preferences"
+              ]
+            },
+            "description": "Partially update learning preferences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wantToLearn\": [\n    \"Rust\",\n    \"Go\"\n  ],\n  \"futureGoals\": \"Staff Engineer\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Delete user by ID (Admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Videos & Courses",
+      "item": [
+        {
+          "name": "Get All Videos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Has videos\", function() { pm.expect(jsonData.length || jsonData.data.length).to.be.above(0); });",
+                  "var first = jsonData[0] || (jsonData.data && jsonData.data[0]);",
+                  "if (first) { pm.collectionVariables.set(\"videoId\", first._id || first.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Video by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Video Course (Teacher)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Express & MongoDB Architecture\",\n  \"description\": \"Comprehensive guide to building production MERN backend APIs\",\n  \"category\": \"Web Development\",\n  \"subCategory\": \"Backend Development\",\n  \"topic\": \"Node.js & Express\",\n  \"videoUrl\": \"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4\",\n  \"thumbnailUrl\": \"https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/videos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Like Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "like"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rate Video (1-5 Stars)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/rate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "rate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Report Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Inappropriate audio or copyright infringement concern\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "report"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Video (Full)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}"
+              ]
+            },
+            "description": "Full update of course video",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated React 19 Mastery\",\n  \"description\": \"Complete updated curriculum\",\n  \"category\": \"Web Development\",\n  \"duration\": \"45 mins\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Partial Update Video",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}"
+              ]
+            },
+            "description": "Partial update of course video",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Patched brief overview description\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Video (Teacher/Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}"
+              ]
+            },
+            "description": "Delete video by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Comments & Replies",
+      "item": [
+        {
+          "name": "Get Comments for Video",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var comments = jsonData.data || jsonData;",
+                  "if (comments && comments.length > 0) { pm.collectionVariables.set(\"commentId\", comments[0]._id || comments[0].id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "comments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Comment (with Toxicity check)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Excellent tutorial! The database indexing explanation was crystal clear.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "comments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reply to Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Glad you found it helpful! Feel free to ask any follow-up questions.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/comments/{{commentId}}/replies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "comments",
+                "{{commentId}}",
+                "replies"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE Comment (Owner/Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/videos/{{videoId}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos",
+                "{{videoId}}",
+                "comments",
+                "{{commentId}}"
+              ]
+            },
+            "description": "Delete comment by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Coding Challenges",
+      "item": [
+        {
+          "name": "Get All Challenges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var items = jsonData.data || jsonData;",
+                  "if (items && items.length > 0) { pm.collectionVariables.set(\"challengeId\", items[0]._id || items[0].id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challenges",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Challenge by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challenges/{{challengeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges",
+                "{{challengeId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Challenge (Teacher)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Array Subsequence Sum\",\n  \"description\": \"Find if any subarray adds up to target K in O(N) time\",\n  \"difficulty\": \"Medium\",\n  \"category\": \"Algorithms\",\n  \"problemStatementUrl\": \"https://res.cloudinary.com/sample.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/challenges",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Challenge (Full)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challenges/{{challengeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges",
+                "{{challengeId}}"
+              ]
+            },
+            "description": "Full update challenge",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Binary Tree Search\",\n  \"difficulty\": \"Hard\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Partial Update Challenge",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/challenges/{{challengeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges",
+                "{{challengeId}}"
+              ]
+            },
+            "description": "Partial update challenge",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"difficulty\": \"Medium\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Challenge (Teacher/Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/challenges/{{challengeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "challenges",
+                "{{challengeId}}"
+              ]
+            },
+            "description": "Delete challenge by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Events & Workshops",
+      "item": [
+        {
+          "name": "Get All Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var items = jsonData.data || jsonData;",
+                  "if (items && items.length > 0) { pm.collectionVariables.set(\"eventId\", items[0]._id || items[0].id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Event (Teacher)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Full-Stack MERN Masterclass\",\n  \"description\": \"Hands-on workshop covering backend API development and React 19 frontend\",\n  \"type\": \"Workshop\",\n  \"date\": \"2026-12-15T18:00:00.000Z\",\n  \"duration\": \"2.5 hours\",\n  \"location\": \"Virtual (Zoom)\",\n  \"speaker\": \"Dr. Alan Turing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Event (Full)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}"
+              ]
+            },
+            "description": "Full update event",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Cloud Hackathon\",\n  \"mode\": \"Online\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Partial Update Event",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}"
+              ]
+            },
+            "description": "Partial update event",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location\": \"https://meet.google.com/updated\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Event (Teacher/Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}"
+              ]
+            },
+            "description": "Delete event by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 Categories & Subcategories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "var cats = jsonData.data || jsonData;",
+                  "if (cats && cats.length > 0) { pm.collectionVariables.set(\"categoryId\", cats[0]._id || cats[0].id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Category (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cloud Computing\",\n  \"description\": \"AWS, Google Cloud, Docker and Kubernetes\",\n  \"subcategories\": [\n    {\n      \"name\": \"DevOps\",\n      \"topics\": [\"Docker\", \"CI/CD Pipelines\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 AI Features (OpenRouter Proxy)",
+      "item": [
+        {
+          "name": "AI Summarize Topic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"MongoDB Aggregation Pipeline\",\n  \"language\": \"English\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ai/summarize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "summarize"
+              ]
+            }
+          }
+        },
+        {
+          "name": "AI Roadmap Generator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"Full-Stack React & Node.js Developer\",\n  \"proficiency\": \"Beginner\",\n  \"targetTimeline\": \"3 Months\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ai/roadmap",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "roadmap"
+              ]
+            }
+          }
+        },
+        {
+          "name": "AI Assistant Chatbot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"What is the difference between SQL and NoSQL databases in web architecture?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ai/chat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ai",
+                "chat"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Roadmaps Persistence",
+      "item": [
+        {
+          "name": "Get User Roadmaps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/roadmaps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roadmaps"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Save Generated Roadmap",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Full-Stack Roadmap\",\n  \"topic\": \"React & Node.js\",\n  \"modules\": [\n    {\n      \"title\": \"Module 1: HTML, CSS & Modern JavaScript\",\n      \"completed\": false\n    },\n    {\n      \"title\": \"Module 2: React 19 Components & Hooks\",\n      \"completed\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/roadmaps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roadmaps"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH Update Roadmap Progress",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/roadmaps/{{roadmapId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roadmaps",
+                "{{roadmapId}}"
+              ]
+            },
+            "description": "Update roadmap step progress",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completedSteps\": [\n    \"step-1\",\n    \"step-2\"\n  ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Roadmap",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roadmaps/{{roadmapId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roadmaps",
+                "{{roadmapId}}"
+              ]
+            },
+            "description": "Delete saved roadmap"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10 Analytics & Dashboards",
+      "item": [
+        {
+          "name": "Admin Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "admin"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Teacher Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/teacher",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "teacher"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
